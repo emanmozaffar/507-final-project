@@ -5,8 +5,8 @@ from flask import Flask, redirect, request, render_template, url_for
 
 app = Flask(__name__)
 
-os.environ['SPOTIPY_CLIENT_ID'] = '4b42bf9b9b864f05b253ec966c07064c'
-os.environ['SPOTIPY_CLIENT_SECRET'] = '874c76ed1a4f4aebac8b68814091446f'
+os.environ['SPOTIPY_CLIENT_ID'] = open("id.txt", "r").read().strip('\n')
+os.environ['SPOTIPY_CLIENT_SECRET'] = open("key.txt", "r").read().strip('\n')
 os.environ['SPOTIPY_REDIRECT_URI'] = 'http://127.0.0.1:5000/callback'
 
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope='playlist-modify-public'))
