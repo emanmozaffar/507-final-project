@@ -1,2 +1,3 @@
 # 507-final-project
-Spotify playlist generator
+
+Pick a vibe, any vibe, and listen to the playlist I generated for you!
