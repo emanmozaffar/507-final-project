@@ -45,6 +45,19 @@ def authenticate_user():
     return sp, user_id
 
 def load_or_generate_cache(sp):
+    """
+    Load track data from cache file or generate the cache if it doesn't exist.
+
+    Parameters
+    ----------
+    sp : spotipy.Spotify
+        An authenticated Spotify client object.
+
+    Returns
+    -------
+    dict
+        A dictionary containing track data keyed by track IDs.
+    """
     if os.path.exists(CACHE_FILE):
         with open(CACHE_FILE, 'r') as f:
             tracks = json.load(f)
@@ -76,7 +89,21 @@ def load_or_generate_cache(sp):
 
 
 def similarity(track1, track2):
-    # Calculate similarity based on audio features
+    """
+    Calculate the similarity between two tracks based on their audio features.
+
+    Parameters
+    ----------
+    track1 : dict
+        The audio features for the first track.
+    track2 : dict
+        The audio features for the second track.
+
+    Returns
+    -------
+    float
+        The similarity score between the two tracks (0 to 1).
+    """
     features1 = track1['features']
     features2 = track2['features']
     energy_diff = abs(features1['energy'] - features2['energy'])
@@ -86,6 +113,21 @@ def similarity(track1, track2):
     return 1 - (energy_diff + tempo_diff + valence_diff + loudness_diff) / 4
 
 def build_track_graph(tracks, similarity_threshold):
+    """
+    Build a NetworkX graph of tracks connected by similarity.
+
+    Parameters
+    ----------
+    tracks : dict
+        A dictionary containing track data keyed by track IDs.
+    similarity_threshold : float
+        The minimum similarity required for two tracks to be connected.
+
+    Returns
+    -------
+    networkx.Graph
+        A NetworkX graph with tracks as nodes and similarity as edge weights.
+    """
     if os.path.exists(GRAPH_FILE):
         G = nx.read_adjlist(GRAPH_FILE, nodetype=str)
         for node, data in tracks.items():
@@ -114,8 +156,15 @@ def build_track_graph(tracks, similarity_threshold):
         nx.write_adjlist(G, GRAPH_FILE)
     return G
 
-
 def get_user_mood():
+    """
+    Get the user's mood by prompting them to choose from a list of options.
+
+    Returns
+    -------
+    str
+        The user's chosen mood option.
+    """
     moods = ['happy', 'sad', 'chill', 'high-energy', 'surprise me']
     print('Choose a mood:')
     for i, mood in enumerate(moods):
@@ -147,6 +196,23 @@ def filter_tracks_by_mood(tracks, mood):
     return filtered_tracks
 
 def generate_playlist(tracks, mood, graph):
+    """
+    Generate a playlist of 10 songs based on the user's mood.
+
+    Parameters
+    ----------
+    tracks : dict
+        A dictionary containing track data keyed by track IDs.
+    mood : str
+        The user's chosen mood option.
+    graph : networkx.Graph
+        A NetworkX graph with tracks as nodes and similarity as edge weights.
+
+    Returns
+    -------
+    list
+        A list of 10 track IDs that make up the generated playlist.
+    """
     filtered_tracks = filter_tracks_by_mood(tracks, mood)
     playlist = []
 
@@ -172,19 +238,42 @@ def generate_playlist(tracks, mood, graph):
     return playlist
 
 def save_playlist(sp, user_id, playlist_name, track_ids):
+    """
+    Save the generated playlist to the user's Spotify account.
+
+    Parameters
+    ----------
+    sp : spotipy.Spotify
+        An authenticated Spotify client object.
+    playlist : list
+        A list of 10 track IDs that make up the generated playlist.
+
+    Returns
+    -------
+    None
+    """
     playlist = sp.user_playlist_create(user_id, playlist_name)
     sp.user_playlist_add_tracks(user_id, playlist['id'], track_ids)
     print(f'Successfully created playlist "{playlist_name}" with {len(track_ids)} tracks.')
 
 def main():
+    """
+    Executes main program.
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    None
+    """
     sp, user_id = authenticate_user()
     tracks = load_or_generate_cache(sp)
     graph = build_track_graph(tracks, similarity_threshold=0.7)
     mood = get_user_mood()
     playlist = generate_playlist(tracks, mood, graph)
     save_playlist(sp, user_id, f"{mood.capitalize()} Mood Playlist", playlist)
-
-
 
 if __name__ == "__main__":
     main()
