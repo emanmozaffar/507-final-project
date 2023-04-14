@@ -99,7 +99,7 @@ if __name__ == '__main__':
 
     song_list = []
     for song in song_cache:
-        pass # create Song
+        song_list.append(Song())
 
     # Create a NetworkX graph
     G = nx.Graph()
