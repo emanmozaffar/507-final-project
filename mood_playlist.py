@@ -191,10 +191,10 @@ def filter_tracks_by_mood(tracks, mood):
         audio_features = track_data['features']
 
         if mood == 'happy':
-            if audio_features['valence'] > 0.7:
+            if audio_features['valence'] > 0.6:
                 filtered_tracks.append(track_id)
         elif mood == 'sad':
-            if audio_features['valence'] < 0.3:
+            if audio_features['valence'] < 0.4:
                 filtered_tracks.append(track_id)
         elif mood == 'chill':
             if audio_features['tempo'] < 100 and audio_features['loudness'] < -10:
