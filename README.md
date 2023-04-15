@@ -1,4 +1,4 @@
-# 507-final-project
+# Spotify Playlist Maker
 
 ## Pick a vibe, any vibe, and enjoy the playlist I generate for you!
 
